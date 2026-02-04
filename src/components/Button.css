@@ -1,0 +1,80 @@
+
+/* Base button */
+.button {
+    flex: 1;
+    margin: 5px;
+    min-height: 50px;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.06s ease, box-shadow 0.08s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Active press */
+  .button:active {
+    transform: scale(0.96);
+  }
+  
+  /* Color variations */
+  .button-black {
+    background: linear-gradient(to bottom, #070606, #070606, #463434);
+    color: rgb(248, 252, 35);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .button-red {
+    background: linear-gradient(to bottom, #f02020, #f87676, #f52828, #f70101);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(240,0,0,0.18);
+  }
+  
+  .button-green {
+    background: linear-gradient(to top, #95f584, #b7f7ac, #3af719);
+    color: #0c0b0b;
+    box-shadow: 0 2px 6px rgba(0,255,0,0.06);
+  }
+  
+  /* Memory button smaller */
+  .button-memory {
+    flex: none;
+    width: 110px;
+    height: 34px;
+    margin: 2px;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.06s ease;
+    background: linear-gradient(to bottom, #222, #444);
+    color: gold;
+    box-shadow: 0 0 4px rgba(255, 255, 0, 0.18);
+  }
+  
+  /* Hover states */
+  .button-black:hover {
+    background: linear-gradient(to bottom, #1d1b1b, #383737, #0f0d0d);
+  }
+  
+  .button-red:hover {
+    background: linear-gradient(to bottom, #fa5757, #f89e9e, #fa6363, #f84444);
+  }
+  
+  .button-green:hover {
+    background: linear-gradient(to top, #6dc95c, #37e419, #126e01);
+  }
+  
+  .button-memory:hover {
+    background: linear-gradient(to bottom, #333, #555, #333);
+  }
+  
+  /* Zero button stretch (expects id="zero" on the zero button) */
+  #zero {
+    flex: 2;
+  }
+  
