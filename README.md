@@ -1,10 +1,14 @@
 CalcPro — TypeScript React Calculator
 
+GitHub Actions Badge
+
+[![CI](https://github.com/dev-johan-swart/calcpro-typescript-react/actions/workflows/ci.yml/badge.svg)](https://github.com/dev-johan-swart/calcpro-typescript-react/actions/workflows/ci.yml)
+
 A fully tested, production-ready calculator built with React and TypeScript.
 
 🚀 Live Demo
 
-- https://calcpro-lovat.vercel.app/
+- Try it online: [CalcPro Online](https://calcpro-lovat.vercel.app/)
 
 🧠 Tech Stack
 
@@ -21,10 +25,12 @@ A fully tested, production-ready calculator built with React and TypeScript.
 - Automated interaction tests
 - Memory (M+, MR, MC)
 - AC reset functionality
+- Trigonometric functions (sin, cos, tan), square root, square, π & e constants, logarithms.
 - Sign toggle (+/-)
 - Decimal validation
 - Operator edge-case handling
 - Accessible button labeling
+- Keyboard support
 
 🧪 Testing
 
