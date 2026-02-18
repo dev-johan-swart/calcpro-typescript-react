@@ -13,10 +13,9 @@ export default function App() {
   const [waitingForOperand, setWaitingForOperand] = useState(false);
   const [value, setValue] = useState(null);
   const [memory, setMemory] = useState(null);
-  const [mode, setMode] = useState("classic"); // "classic" or "math"
+  const [mode, setMode] = useState("classic");
   const [isOn, setIsOn] = useState(true);
 
-  // Refs for keyboard handler (avoid stale state issues)
   const displayRef = useRef(display);
   const isOnRef = useRef(isOn);
   const modeRef = useRef(mode);
@@ -32,8 +31,6 @@ export default function App() {
   useEffect(() => { valueRef.current = value; }, [value]);
   useEffect(() => { waitingRef.current = waitingForOperand; }, [waitingForOperand]);
   useEffect(() => { memoryRef.current = memory; }, [memory]);
-
-  // --- Helper functions ---
 
   const clearAll = useCallback(() => {
     setDisplay("0");
@@ -54,58 +51,30 @@ export default function App() {
       setMemory(null);
     } else {
       setIsOn(true);
-      setDisplay("0");
-      setExpression("");
-      setOperator(null);
-      setWaitingForOperand(false);
-      setValue(null);
+      clearAll();
     }
   };
 
   const changeMode = (newMode) => {
     if (!isOn) return;
     setMode(newMode);
-    setDisplay("0");
-    setExpression("");
-    setOperator(null);
-    setWaitingForOperand(false);
-    setValue(null);
+    clearAll();
   };
 
   // --- Classic calculator handler ---
   const handleClassicClick = (btn) => {
     if (!isOn) return;
 
-    if (btn === "AC") {
-      clearAll();
-      return;
-    }
+    // --- Memory ---
+    if (btn === "AC") return clearAll();
+    if (btn === "M+") { const num = parseFloat(display); if (!isNaN(num)) setMemory(num); return; }
+    if (btn === "MR") { if (memory !== null) { setDisplay(String(memory)); setExpression(prev => prev ? prev + " MR" : "MR"); } return; }
+    if (btn === "MC") { setMemory(null); return; }
 
-    if (btn === "M+") {
-      const num = parseFloat(display);
-      if (!isNaN(num)) setMemory(num);
-      return;
-    }
-
-    if (btn === "MR") {
-      if (memory !== null) {
-        setDisplay(String(memory));
-        setExpression(prev => (prev ? prev + " MR" : "MR"));
-      }
-      return;
-    }
-
-    if (btn === "MC") {
-      setMemory(null);
-      return;
-    }
-
+    // --- Operators ---
     if (["+", "-", "x", "÷"].includes(btn)) {
       const current = parseFloat(display);
-      if (isNaN(current)) {
-        setDisplay("Error");
-        return;
-      }
+      if (isNaN(current)) { setDisplay("Error"); return; }
 
       if (operator && value != null && !waitingForOperand) {
         let result = value;
@@ -113,17 +82,9 @@ export default function App() {
           case "+": result = value + current; break;
           case "-": result = value - current; break;
           case "x": result = value * current; break;
-          case "÷":
-            if (current === 0) {
-              setDisplay("Error");
-              setExpression(prev => prev + " ÷ 0");
-              setOperator(null);
-              setValue(null);
-              setWaitingForOperand(false);
-              return;
-            }
+          case "÷": 
+            if (current === 0) { setDisplay("Error"); setExpression(prev => prev + " ÷ 0"); setOperator(null); setValue(null); setWaitingForOperand(false); return; }
             result = value / current; break;
-          default: break;
         }
         setDisplay(String(result));
         setValue(result);
@@ -147,16 +108,8 @@ export default function App() {
           case "-": result = value - current; break;
           case "x": result = value * current; break;
           case "÷":
-            if (current === 0) {
-              setDisplay("Error");
-              setExpression(prev => prev + " =");
-              setOperator(null);
-              setValue(null);
-              setWaitingForOperand(false);
-              return;
-            }
+            if (current === 0) { setDisplay("Error"); setExpression(prev => prev + " ="); setOperator(null); setValue(null); setWaitingForOperand(false); return; }
             result = value / current; break;
-          default: return;
         }
         setDisplay(String(result));
         setExpression(prev => prev ? prev + " =" : "=");
@@ -167,6 +120,7 @@ export default function App() {
       return;
     }
 
+    // --- Decimal ---
     if (btn === ".") {
       if (waitingForOperand) {
         setDisplay("0.");
@@ -174,29 +128,32 @@ export default function App() {
         setExpression(prev => prev + "0.");
         return;
       }
-      if (!display.includes(".")) {
+      // Prevent multiple decimals in the **current number**
+      const parts = display.split(/[\+\-\x÷]/);
+      const currentNum = parts[parts.length - 1];
+      if (!currentNum.includes(".")) {
         setDisplay(display + ".");
         setExpression(prev => prev + ".");
       }
       return;
     }
 
+    // --- Plus/Minus toggle ---
     if (btn === "+/-") {
       if (display === "0" || display === "OFF" || display === "Error") return;
-      const newVal = display.charAt(0) === "-" ? display.slice(1) : "-" + display;
-      setDisplay(newVal);
+      setDisplay(display.charAt(0) === "-" ? display.slice(1) : "-" + display);
       return;
     }
 
+    // --- Percent ---
     if (btn === "%") {
       const parsed = parseFloat(display);
-      if (!isNaN(parsed)) {
-        setDisplay(String(parsed / 100));
-        setExpression(prev => prev + "%");
-      } else setDisplay("Error");
+      if (!isNaN(parsed)) { setDisplay(String(parsed / 100)); setExpression(prev => prev + "%"); }
+      else setDisplay("Error");
       return;
     }
 
+    // --- Numbers ---
     if (/^\d+$/.test(btn)) {
       if (display === "0" || waitingForOperand || display === "OFF" || display === "Error") {
         setDisplay(btn);
@@ -210,23 +167,9 @@ export default function App() {
   // --- Math calculator handler ---
   const handleMathClick = (btn) => {
     if (!isOn) return;
-
-    if (btn === "M+") {
-      const parsed = parseFloat(display);
-      if (!isNaN(parsed)) setMemory(parsed);
-      return;
-    }
-    if (btn === "MR") {
-      if (memory !== null) {
-        setDisplay(String(memory));
-        setExpression(prev => prev ? prev + " MR" : "MR");
-      }
-      return;
-    }
-    if (btn === "MC") {
-      setMemory(null);
-      return;
-    }
+    if (btn === "M+") { const parsed = parseFloat(display); if (!isNaN(parsed)) setMemory(parsed); return; }
+    if (btn === "MR") { if (memory !== null) { setDisplay(String(memory)); setExpression(prev => prev ? prev + " MR" : "MR"); } return; }
+    if (btn === "MC") { setMemory(null); return; }
 
     try {
       const num = parseFloat(display);
@@ -234,27 +177,18 @@ export default function App() {
       switch (btn) {
         case "sin": result = Math.sin((num * Math.PI) / 180); break;
         case "cos": result = Math.cos((num * Math.PI) / 180); break;
-        case "tan":
-          result = Math.tan((num * Math.PI) / 180);
-          if (!isFinite(result)) { setDisplay("Error"); return; }
-          break;
-        case "√":
-          if (num < 0) { setDisplay("Error"); return; }
-          result = Math.sqrt(num); break;
+        case "tan": result = Math.tan((num * Math.PI) / 180); if (!isFinite(result)) { setDisplay("Error"); return; } break;
+        case "√": if (num < 0) { setDisplay("Error"); return; } result = Math.sqrt(num); break;
         case "x²": result = Math.pow(num, 2); break;
         case "π": result = num ? num * Math.PI : Math.PI; break;
         case "e": result = num ? num * Math.E : Math.E; break;
-        case "log":
-          if (num <= 0) { setDisplay("Error"); return; }
-          result = Math.log10(num); break;
+        case "log": if (num <= 0) { setDisplay("Error"); return; } result = Math.log10(num); break;
         default: return;
       }
       setDisplay(Number.parseFloat(result.toPrecision(12)).toString());
       setExpression(`${btn}(${display})`);
       setWaitingForOperand(false);
-    } catch {
-      setDisplay("Error");
-    }
+    } catch { setDisplay("Error"); }
   };
 
   const handleBackspace = () => {
@@ -264,14 +198,13 @@ export default function App() {
     else setDisplay(display.slice(0, -1));
   };
 
-  // --- Keyboard handler ---
+  // --- Keyboard ---
   useEffect(() => {
     const onKeyDown = (ev) => {
       if (!isOnRef.current) return;
       const key = ev.key.toLowerCase();
       if (["enter", "backspace", "escape"].includes(key)) ev.preventDefault();
 
-      // classic calculator keys
       if (/^[0-9]$/.test(key)) handleClassicClick(key);
       else if (key === ".") handleClassicClick(".");
       else if (key === "+") handleClassicClick("+");
@@ -283,7 +216,6 @@ export default function App() {
       else if (key === "escape") handleClassicClick("AC");
       else if (key === "backspace") handleBackspace();
 
-      // math shortcuts
       if (modeRef.current === "math") {
         if (key === "s") handleMathClick("sin");
         if (key === "c") handleMathClick("cos");
@@ -295,12 +227,10 @@ export default function App() {
         if (key === "l") handleMathClick("log");
       }
     };
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // --- Render ---
   return (
     <div className="App">
       <div className="background-wrapper">
@@ -312,15 +242,10 @@ export default function App() {
             <button
               onClick={togglePower}
               style={{
-                width: 84,
-                height: 36,
+                width: 84, height: 36,
                 backgroundColor: isOn ? "red" : "limegreen",
-                color: "black",
-                border: "none",
-                borderRadius: 20,
-                fontSize: "0.95rem",
-                cursor: "pointer",
-                fontWeight: 600
+                color: "black", border: "none", borderRadius: 20,
+                fontSize: "0.95rem", cursor: "pointer", fontWeight: 600
               }}
               aria-pressed={isOn}
             >
