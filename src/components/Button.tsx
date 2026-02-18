@@ -1,7 +1,19 @@
 import React from "react";
-import './Button.css';
+import "./Button.css";
 
-const Button = ({ name, clickHandler, id, className = "" }) => {
+interface ButtonProps {
+  name: string;
+  clickHandler: (name: string) => void;
+  id?: string;
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({
+  name,
+  clickHandler,
+  id,
+  className = ""
+}) => {
   let buttonClass = "button";
 
   if (name === "AC" || name === "+/-" || name === "%") {

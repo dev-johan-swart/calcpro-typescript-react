@@ -10,7 +10,7 @@ const Display = ({ value = "0", expression = "", isOn = true }) => {
 
   return (
     <div
-      id="display"
+      id="display" role="status"
       style={{
         backgroundColor: "black",
         color: mainColor,
